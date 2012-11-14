@@ -1,7 +1,5 @@
 // ORIGINAL EDITED
 
-// gcc -o udp_obfs udp_obfs.c
-
 /* http://www.brokestream.com/udp_redirect.html
 
   Build: gcc -o udp_redirect udp_redirect.c
@@ -37,7 +35,7 @@
 #include <netinet/in.h>
 
 int main(int argc, char *argv[]) {
-    if (argc! = 3 && argc! = 5) {
+    if (argc != 3 && argc != 5) {
         printf("Usage: %s our-ip our-port send-to-ip send-to-port\n", argv[0]);
         printf("Usage: %s our-ip our-port             # echo mode\n", argv[0]);
         exit(1);
