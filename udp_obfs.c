@@ -31,8 +31,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+			
+#ifdef _WIN32
+    #include <winsock2.h>
+	#define sock_t SOCKET
+#else
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+	#define sock_t int	
+#endif
 
 int main(int argc, char *argv[]) {
     if (argc != 3 && argc != 5) {
@@ -47,7 +54,7 @@ int main(int argc, char *argv[]) {
     char* key = "1234567890123456789012345678901234567890123456789012345678901234";
 
     // Init socket
-    int os = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
+    sock_t os = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
 
     struct sockaddr_in a;
     a.sin_family = AF_INET;
@@ -76,11 +83,13 @@ int main(int argc, char *argv[]) {
         int n = recvfrom(os, buf, sizeof(buf), 0, (struct sockaddr *)&sa, &sn);
         if(n <= 0) continue;
 
-        int i;
-        for(i = 0; i < n; i++)
+		// This should be secure (enough) (maybe) provided buf[0] and key[0] are no known, which with OpenVPN tls-auth they should not be
+        buf[0] = buf[0] ^ key[0];
+		int i;
+        for(i = 1; i < n; i++)
         {
             // Encrypt/decrypt (XOR) in place - no buffers
-            buf[i] = buf[i] ^ key[i%key_length];
+            buf[i] = buf[i] ^ (key[i%key_length] ^ buf[i-1]);
         }
 
         if(argc == 3) {
