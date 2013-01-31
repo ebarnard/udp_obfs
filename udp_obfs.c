@@ -83,13 +83,11 @@ int main(int argc, char *argv[]) {
         int n = recvfrom(os, buf, sizeof(buf), 0, (struct sockaddr *)&sa, &sn);
         if(n <= 0) continue;
 
-		// This should be secure (enough) (maybe) provided buf[0] and key[0] are no known, which with OpenVPN tls-auth they should not be
-        buf[0] = buf[0] ^ key[0];
 		int i;
-        for(i = 1; i < n; i++)
+        for(i = 0; i < n; i++)
         {
             // Encrypt/decrypt (XOR) in place - no buffers
-            buf[i] = buf[i] ^ (key[i%key_length] ^ buf[i-1]);
+            buf[i] = buf[i] ^ key[i%key_length];
         }
 
         if(argc == 3) {
